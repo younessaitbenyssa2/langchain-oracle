@@ -22,14 +22,14 @@ function mockConnection() {
     execute,
     executeMany,
     commit,
-    close,
+    close
   } as unknown as oracledb.Connection;
   return { client, execute, executeMany, commit, close };
 }
 
 const embeddings = {
   embedQuery: async () => [1, 0, 0],
-  embedDocuments: async (texts: string[]) => texts.map(() => [1, 0, 0]),
+  embedDocuments: async (texts: string[]) => texts.map(() => [1, 0, 0])
 };
 const hash = (value: string) => defaultHashKeyEncoder(value);
 
@@ -42,7 +42,7 @@ describe.each(["exact", "semantic"] as const)("%s cache", (kind) => {
         : new OracleSemanticCache(embeddings, {
             client: mocks.client,
             tableName: "CACHE_TEST",
-            query: "test",
+            query: "test"
           });
     function payload(value: unknown, distance = 0) {
       mocks.execute.mockResolvedValue({
@@ -56,8 +56,8 @@ describe.each(["exact", "semantic"] as const)("%s cache", (kind) => {
                   { return_val: value },
                   distance,
                   new Float32Array([1, 0, 0]),
-                ],
-              ],
+                ]
+              ]
       });
     }
     return { ...mocks, cache, payload };
@@ -70,7 +70,7 @@ describe.each(["exact", "semantic"] as const)("%s cache", (kind) => {
         : new OracleSemanticCache(embeddings, {
             client,
             tableName,
-            query: "test",
+            query: "test"
           });
     expect(() =>
       make(null as unknown as oracledb.Connection, "CACHE_TEST")
@@ -148,7 +148,7 @@ describe.each(["exact", "semantic"] as const)("%s cache", (kind) => {
       expect(binds).toMatchObject({
         id: hash(JSON.stringify(["p", "l"])),
         prompt_hash: hash("p"),
-        llm_key_hash: hash("l"),
+        llm_key_hash: hash("l")
       });
       payload(binds.generations);
       expect(commit).toHaveBeenCalledOnce();
@@ -172,7 +172,7 @@ describe.each(["exact", "semantic"] as const)("%s cache", (kind) => {
     const { cache, payload, execute } = setup();
     const value: ChatGeneration = {
       text: "hi",
-      message: new AIMessage({ content: "hi", id: "lc_run--original" }),
+      message: new AIMessage({ content: "hi", id: "lc_run--original" })
     };
     const stored = [serializeGeneration(value)];
     payload(kind === "exact" ? JSON.stringify(stored) : stored);
@@ -206,15 +206,15 @@ describe.each(["exact", "semantic"] as const)("%s cache", (kind) => {
                   name: "t",
                   args: "{",
                   id: "x",
-                  type: "invalid_tool_call" as const,
-                },
-              ],
+                  type: "invalid_tool_call" as const
+                }
+              ]
             }
           : {
               tool_calls: [
                 { name: "t", args: {}, id: "x", type: "tool_call" as const },
-              ],
-            }),
+              ]
+            })
       });
       await cache.update("p", "l", [{ text: "", message } as ChatGeneration]);
       expect(execute).not.toHaveBeenCalled();
@@ -288,7 +288,7 @@ describe("behavior specific to each cache", () => {
       { createIndexIfMissing: true, indexName: 'bad"name' }
     );
     await expect(cache.initialize()).rejects.toMatchObject({
-      code: ErrorCode.VALIDATION_INVALID_IDENTIFIER,
+      code: ErrorCode.VALIDATION_INVALID_IDENTIFIER
     });
     expect(execute).toHaveBeenCalledWith(
       expect.stringContaining("CREATE TABLE")
@@ -300,8 +300,8 @@ describe("behavior specific to each cache", () => {
     const { client, execute } = mockConnection();
     execute.mockResolvedValue({
       rows: [
-        ["entry-id", "p", { return_val: "{}" }, 0, new Float32Array([1, 0, 0])],
-      ],
+        ["entry-id", "p", { return_val: "{}" }, 0, new Float32Array([1, 0, 0])]
+      ]
     });
     const cache = new OracleSemanticCache(embeddings, {
       client,
@@ -328,14 +328,14 @@ describe("behavior specific to each cache", () => {
             { return_val: [{ text: "v" }] },
             score,
             new Float32Array([1, 0, 0]),
-          ],
-        ],
+          ]
+        ]
       });
       const cache = new OracleSemanticCache(
         embeddings,
         {
           client,
-          query: "test",
+          query: "test"
         },
         { scoreThreshold }
       );
